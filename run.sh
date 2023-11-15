@@ -7,6 +7,6 @@ pid=$!
 sudo ip addr add 192.168.0.1/24 dev my_tun0
 sudo ip link set up dev my_tun0
 
-trap "kill $pid" TERM
+trap "kill $pid" TERM INT
 
 wait $pid

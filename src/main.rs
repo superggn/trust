@@ -6,10 +6,14 @@ fn main() -> io::Result<()> {
     loop {
         let nbytes = nic.recv(&mut buf[..])?;
         let flags = u16::from_be_bytes([buf[0], buf[1]]);
-        println!("flags: {}", flags);
         let proto = u16::from_be_bytes([buf[2], buf[3]]);
-        println!("flags: {}", proto);
-        eprintln!("read {} bytes: {:x?}", nbytes - 4, &buf[4..nbytes]);
+        eprintln!(
+            "read {} bytes (flags: {:x}, proto: {:x}): {:x?}",
+            nbytes - 4,
+            flags,
+            proto,
+            &buf[4..nbytes]
+        );
         println!("nic: {:?}", nic);
     }
     Ok(())

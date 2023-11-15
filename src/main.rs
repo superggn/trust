@@ -23,9 +23,23 @@ fn main() -> io::Result<()> {
                     p.payload_len(),
                     proto,
                 );
+                match etherparse::TcpHeaderSlice::from_slice(&buf[4 + p.slice().len()..]) {
+                    Ok(p) => {
+                        eprintln!(
+                            "{} - {} {}b of tcp to port {} ",
+                            src,
+                            dst,
+                            p.slice().len(),
+                            p.destination_port(),
+                        );
+                    }
+                    Err(e) => {
+                        eprintln!("ignoring weird tcp packet: {:?}", e);
+                    }
+                }
             }
             Err(e) => {
-                eprintln!("ignoring weird packet: {:?}", e);
+                eprintln!("ignoring weird ipv4 packet: {:?}", e);
             }
         }
         println!("nic: {:?}", nic);

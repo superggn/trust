@@ -25,6 +25,8 @@ fn main() -> io::Result<()> {
         }
         // &buf[4..nbytes] 是网络层数据帧， 从网络层数据帧能扒出来 ipv4 header
         // ipv4 header 里面的 protocol number 会说明 传输层用啥协议
+        // 注意，这里的 buf 的全长还是上面定义的 nbytes
+        // 我们只是填充了一部分, 所以 buf 只读到 nbytes 就不往后读了
         match etherparse::Ipv4HeaderSlice::from_slice(&buf[4..nbytes]) {
             Ok(ip_header) => {
                 let src = ip_header.source_addr();
@@ -34,7 +36,9 @@ fn main() -> io::Result<()> {
                     continue;
                 };
                 // &buf[4 + ipv4_header.slice().len()..nbytes] 是传输层数据帧， 能扒出来 tcp header
-                match etherparse::TcpHeaderSlice::from_slice(&buf[4 + ip_header.slice().len()..]) {
+                match etherparse::TcpHeaderSlice::from_slice(
+                    &buf[4 + ip_header.slice().len()..nbytes],
+                ) {
                     Ok(tcp_header) => {
                         let data_index = 4 + ip_header.slice().len() + tcp_header.slice().len();
                         connections
@@ -43,7 +47,7 @@ fn main() -> io::Result<()> {
                                 dst: (dst, tcp_header.destination_port()),
                             })
                             .or_default()
-                            .on_packet(ip_header, tcp_header, &buf[data_index..]);
+                            .on_packet(ip_header, tcp_header, &buf[data_index..nbytes]);
                         // eprintln!(
                         //     "{} - {} {}b of tcp to port {} ",
                         //     src,

@@ -44,13 +44,13 @@ fn main() -> io::Result<()> {
                             })
                             .or_default()
                             .on_packet(ip_header, tcp_header, &buf[data_index..]);
-                        eprintln!(
-                            "{} - {} {}b of tcp to port {} ",
-                            src,
-                            dst,
-                            tcp_header.slice().len(),
-                            tcp_header.destination_port(),
-                        );
+                        // eprintln!(
+                        //     "{} - {} {}b of tcp to port {} ",
+                        //     src,
+                        //     dst,
+                        //     tcp_header.slice().len(),
+                        //     tcp_header.destination_port(),
+                        // );
                     }
                     Err(e) => {
                         eprintln!("ignoring weird tcp packet: {:?}", e);
